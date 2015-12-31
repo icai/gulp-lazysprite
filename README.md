@@ -1,7 +1,7 @@
 #gulp-sprite-generator2
 
 
-对gulp-sprite-generator2(https://www.npmjs.com/package/gulp-sprite-generator)进行了扩展,支持了以下功能:
+对gulp-sprite-generator(https://www.npmjs.com/package/gulp-sprite-generator) 进行了扩展,支持了以下功能:
 
 1.同时支持background 和 background-image
 
@@ -9,7 +9,7 @@
 
 3.支持按css文件名生成多个雪碧图 
 
-demo:
+Demo:
 
 ```js
 gulp.task('style',function(){
