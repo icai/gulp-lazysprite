@@ -1,0 +1,33 @@
+{
+  "name": "gulp-sprite-generator2",
+  "version": "1.0.0",
+  "description": "Extend gulp-sprite-generator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://git@github.com/loviselu/gulp-sprite-generator2.git"
+  },
+  "dependencies": {
+    "async": "^0.2.10",
+    "colors": "^0.6.2",
+    "gulp-util": "^2.2.14",
+    "lodash": "^2.4.1",
+    "q": "^1.0.1",
+    "spritesmith": "^0.18.0",
+    "through2": "^0.4.1",
+    "vinyl": "^0.2.3"
+  },
+  "keywords": [
+    "css",
+    "sprite"
+  ],
+  "author": "loviselu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/loviselu/gulp-sprite-generator2/issues"
+  },
+  "homepage": "https://github.com/loviselu/gulp-sprite-generator2#readme"
+}
