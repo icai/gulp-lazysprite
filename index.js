@@ -10,7 +10,7 @@ var path        = require('path'),
     Q           = require('q'),
     through     = require('through2'),
     Readable    = require('stream').Readable,
-
+    crypto      = require('crypto'),
     PLUGIN_NAME = "gulp-sprite-generator2",
     debug;
 
@@ -23,6 +23,16 @@ var log = function() {
 
     gutil.log.apply(gutil, args);
 };
+
+var md5 = function(text,len){
+    var hash = crypto.createHash('md5').update(text).digest('hex');
+
+    if(len > 0){
+        hash = hash.substr(0,len)
+    }
+
+    return hash;
+}
 
 var getImages = (function() {
     var httpRegex, imageRegex, filePathRegex, pngRegex, retinaRegex;
@@ -132,6 +142,7 @@ var getImages = (function() {
                             async.filter(
                                 images,
                                 function(image, ok) {
+                                    //如果过滤掉的图片
                                     Q(filter(image)).then(ok);
                                 },
                                 function(images) {
@@ -249,7 +260,7 @@ var updateReferencesIn = (function() {
     var template;
 
     template = _.template(
-        'background-image: url("<%= spriteSheetPath %>");\n    ' +
+        'background-image: url("<%= spriteSheetPath %>?v=<%= fileHash %>");\n    ' +
         'background-position: -<%= isRetina ? (coordinates.x / retinaRatio) : coordinates.x %>px -<%= isRetina ? (coordinates.y / retinaRatio) : coordinates.y %>px;\n    ' +
         'background-size: <%= isRetina ? (properties.width / retinaRatio) : properties.width %>px <%= isRetina ? (properties.height / retinaRatio) : properties.height %>px!important;'
     );
@@ -260,6 +271,7 @@ var updateReferencesIn = (function() {
         return function(results) {
             results.forEach(function(images) {
                 images.forEach(function(image) {
+                    image.fileHash = image.spriteHash;
                     content = content.replace(image.replacement, template(image));
                 });
             });
@@ -298,10 +310,11 @@ var exportSprites = (function() {
                     contents: new Buffer(result.image, 'binary')
                 });
 
+                result.spriteHash = md5(result.image,8);
+
                 stream.push(sprite);
 
                 options.verbose && log('Spritesheet', result.path, 'has been created');
-
 
                 return result;
             });            
@@ -331,6 +344,7 @@ var mapSpritesProperties = function(images, options) {
         return results.map(function(result) {
             return _.map(result.coordinates, function(coordinates, path) {
                 return _.merge(_.find(images, {path: path}), {
+                    spriteHash : result.spriteHash,
                     coordinates: coordinates,
                     spriteSheetPath: options.spriteSheetPath ? options.spriteSheetPath + "/" + result.path : result.path,
                     properties: result.properties
