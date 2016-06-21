@@ -37,7 +37,7 @@ var md5 = function(text,len){
 var getImages = (function() {
     var httpRegex, imageRegex, filePathRegex, pngRegex, retinaRegex;
 
-    imageRegex    = new RegExp('background(?:-image)?:[\\s]?url\\(["\']?([\\w\\d\\s!:./\\-\\_@]*\\.[\\w?#]+)["\']?\\)[^;]*\\;(?:\\s*\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\/)?', 'ig');
+    imageRegex    = new RegExp('background(?:-image)?:[\\s]?(?:image-)?url\\(["\']?([\\w\\d\\s!:./\\-\\_@]*\\.[\\w?#]+)["\']?\\)[^;]*\\;(?:\\s*\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\/)?', 'ig');
     retinaRegex   = new RegExp('@(\\d)x\\.[a-z]{3,4}$', 'ig');
     httpRegex     = new RegExp('http[s]?', 'ig');
     pngRegex      = new RegExp('\\.png(?:\\?\\w*)?$', 'i');
@@ -64,11 +64,12 @@ var getImages = (function() {
         })();
 
         while ((reference = imageRegex.exec(content)) != null) {
+            var isImageUrl = /background(?:-image)?:[\s]?image-url/.exec(reference[0]) != null;
             url   = reference[1];
             meta  = reference[2];
 
             image = {
-                replacement: new RegExp('background(?:-image)?:\\s+url\\(\\s?(["\']?)\\s?' + makeRegexp(url) + '\\s?\\1\\s?\\)[^;]*\\;', 'gi'),
+                replacement: new RegExp('background(?:-image)?:\\s+(?:image-)?url\\(\\s?(["\']?)\\s?' + makeRegexp(url) + '\\s?\\1\\s?\\)[^;]*\\;', 'gi'),
                 url:         url,
                 group:       [],
                 isRetina:    false,
@@ -103,6 +104,9 @@ var getImages = (function() {
             filePath = filePathRegex.exec(url)[0].replace(/['"]/g, '');
             filePath = filePath.replace(/\?\w*$/,'');
 
+            if(isImageUrl){
+                filePath = path.resolve(options.imageUrl.imagesPath, filePath);
+            }
             // if url to image is relative
             if(filePath.charAt(0) === "/") {
                 filePath = path.resolve(options.baseUrl + filePath);
@@ -111,6 +115,8 @@ var getImages = (function() {
             }
 
             image.path = filePath;
+
+            image.isImageUrl = isImageUrl;
 
             // reset lastIndex
             [httpRegex, pngRegex, retinaRegex, filePathRegex].forEach(function(regex) {
@@ -260,7 +266,7 @@ var updateReferencesIn = (function() {
     var template;
 
     template = _.template(
-        'background-image: url("<%= spriteSheetPath %>?v=<%= fileHash %>");\n    ' +
+        'background-image: <%= isImageUrl ? "image-": ""%>url("<%= spriteSheetPath %>?v=<%= fileHash %>");\n    ' +
         'background-position: -<%= isRetina ? (coordinates.x / retinaRatio) : coordinates.x %>px -<%= isRetina ? (coordinates.y / retinaRatio) : coordinates.y %>px;\n    ' +
         'background-size: <%= isRetina ? (properties.width / retinaRatio) : properties.width %>px <%= isRetina ? (properties.height / retinaRatio) : properties.height %>px!important;'
     );
@@ -297,7 +303,7 @@ var exportSprites = (function() {
         return path.join('.');
     }
 
-    return function(stream, options,filename) {
+    return function(stream, options, filename) {
         return function(results) {
             results = results.map(function(result) {
                 var sprite;
@@ -376,6 +382,9 @@ module.exports = function(options) { 'use strict';
         },
 
         baseUrl:         './',
+        imageUrl: {
+            imagesPath: './images'
+        },
         retina:          true,
         styleSheetName:  null,
         spriteSheetName: null,
