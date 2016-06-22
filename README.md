@@ -1,10 +1,8 @@
-# [gulp](http://gulpjs.com)-sprite-generator2
+# [gulp](http://gulpjs.com)-lazysprite
 
 
 
-
-
- Better suit for `gulp-sass`
+ Better suit for `gulp-sass` and `node-sass-asset-functions`.
 
 
 > Generate sprites from stylesheets.
@@ -15,14 +13,10 @@ Plugin that generate sprites from your stylesheets (using [spritesmith](https://
 
 If you haven't used [gulp](http://gulpjs.com) before, be sure to check out the [Getting Started](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md) guide.
 
-Install with [npm](https://npmjs.org/package/gulp-sprite-generator)
+Install with [npm](https://npmjs.org/package/gulp-lazysprite)
 
 ```
-npm install --save-dev git+https://github.com/icai/gulp-sprite-generator2.git
-
-or
-
-npm install icai/gulp-sprite-generator2 --save-dev
+npm install gulp-lazysprite --save-dev
 ```
 
 ## Overview
@@ -33,7 +27,7 @@ Here quick example of simple way usage:
 
 ```javascript
 var gulp = require('gulp');
-var sprite = require('gulp-sprite-generator2');
+var sprite = require('gulp-lazysprite');
 
 gulp.task('sprites', function() {
     var spriteOutput;
@@ -59,11 +53,11 @@ gulp.task('style',function(){
     .pipe(less())
     .pipe(spriter({
         baseUrl: "./",
-        spriteSheetName:"[name].sprite.png",//会自动把[name]替换成正在处理文件名
+        spriteSheetName:"[name].sprite.png",// repalce `[name]` to filename
         spriteSheetPath: "../images/sprite",
         filter: [
             function(image) {
-                return !(image.url.indexOf("?__sprite") === -1);  //只对?__sprite进行雪碧图合并
+                return !(image.url.indexOf("?__sprite") === -1);  
             }
         ]
         verbose:true
@@ -74,15 +68,6 @@ gulp.task('style',function(){
 });
 
 ```
-对gulp-sprite-generator(https://www.npmjs.com/package/gulp-sprite-generator) 进行了扩展,支持了以下功能:
-
-1.同时支持background 和 background-image
-
-2.修改了对图片路径的判断,支持路径后面带?查询字符串
-
-3.支持按css文件名生成多个雪碧图
-
-4.自动给生成的雪碧图url后面加上 ?={md5}
 
 Of course you may need to have more flexible configuration for spriting. And this plugin can give you something more!
 
@@ -238,7 +223,7 @@ Example:
 ```javascript
 
 var gulp   = require('gulp'),
-    sprite = require('gulp-sprite-generator'),
+    sprite = require('gulp-lazysprite'),
     Q      = require('q'),
     sizeOf = require('image-size');
 
