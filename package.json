@@ -1,6 +1,6 @@
 {
-  "name": "gulp-sprite-generator2",
-  "version": "1.0.4",
+  "name": "gulp-lazysprite",
+  "version": "0.5.0",
   "description": "Extend gulp-sprite-generator",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://git@github.com/loviselu/gulp-sprite-generator2.git"
+    "url": "git+https://git@github.com/icai/gulp-lazysprite.git"
   },
   "dependencies": {
     "async": "^0.2.10",
@@ -20,14 +20,19 @@
     "through2": "^0.4.1",
     "vinyl": "^0.2.3"
   },
+  "files": [
+    "index.js"
+  ],
   "keywords": [
     "css",
+    "scss",
+    "less",
     "sprite"
   ],
-  "author": "loviselu",
-  "license": "ISC",
+  "author": "icai",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/loviselu/gulp-sprite-generator2/issues"
+    "url": "https://github.com/icai/gulp-lazysprite/issues"
   },
-  "homepage": "https://github.com/loviselu/gulp-sprite-generator2#readme"
+  "homepage": "https://github.com/icai/gulp-lazysprite#readme"
 }
