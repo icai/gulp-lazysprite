@@ -11,7 +11,7 @@ var path        = require('path'),
     through     = require('through2'),
     Readable    = require('stream').Readable,
     crypto      = require('crypto'),
-    PLUGIN_NAME = "gulp-sprite-generator2",
+    PLUGIN_NAME = "gulp-lazysprite",
     debug;
 
 var log = function() {
@@ -475,7 +475,7 @@ module.exports = function(options) { 'use strict';
                 getImages(file, options)
                     .then(function(images) {
                         callSpriteSmithWith(images, options)
-                            .then(exportSprites(spriteSheetStream, options,filename))
+                            .then(exportSprites(spriteSheetStream, options, filename))
                             .then(mapSpritesProperties(images, options))
                             .then(updateReferencesIn(file))
                             .then(exportStylesheet(styleSheetStream, _.extend({}, options, { styleSheetName: options.styleSheetName || path.basename(file.path) })))
