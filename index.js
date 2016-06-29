@@ -103,19 +103,18 @@ var getImages = (function() {
 
             filePath = filePathRegex.exec(url)[0].replace(/['"]/g, '');
             filePath = filePath.replace(/\?\w*$/,'');
-
             if(isImageUrl){
                 filePath = path.resolve(options.imageUrl.imagesPath, filePath);
+            } else{
+                // if url to image is relative
+                if(filePath.charAt(0) === "/") {
+                    filePath = path.resolve(options.baseUrl + filePath);
+                } else {
+                    filePath = path.resolve(file.path.substring(0, file.path.lastIndexOf(path.sep)), filePath);
+                }
+                
             }
-            // if url to image is relative
-            if(filePath.charAt(0) === "/") {
-                filePath = path.resolve(options.baseUrl + filePath);
-            } else {
-                filePath = path.resolve(file.path.substring(0, file.path.lastIndexOf(path.sep)), filePath);
-            }
-
             image.path = filePath;
-
             image.isImageUrl = isImageUrl;
 
             // reset lastIndex
@@ -421,7 +420,7 @@ module.exports = function(options) { 'use strict';
     // add not existing filter
     options.filter.push(function(image) {
         var deferred = Q.defer();
-
+        console.info(image, path);
         fs.exists(image.path, function(exists) {
             !exists && options.verbose && log(image.path + ' has been skipped as it does not exist!');
             deferred.resolve(exists);
