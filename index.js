@@ -420,7 +420,6 @@ module.exports = function(options) { 'use strict';
     // add not existing filter
     options.filter.push(function(image) {
         var deferred = Q.defer();
-        console.info(image, path);
         fs.exists(image.path, function(exists) {
             !exists && options.verbose && log(image.path + ' has been skipped as it does not exist!');
             deferred.resolve(exists);
