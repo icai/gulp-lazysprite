@@ -4,21 +4,26 @@
   "description": "Extend gulp-sprite-generator",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha ./test"
   },
   "repository": {
     "type": "git",
     "url": "git+https://git@github.com/icai/gulp-lazysprite.git"
   },
   "dependencies": {
-    "async": "^0.2.10",
-    "colors": "^0.6.2",
-    "gulp-util": "^2.2.14",
-    "lodash": "^2.4.1",
-    "q": "^1.0.1",
-    "spritesmith": "^0.18.0",
-    "through2": "^0.4.1",
-    "vinyl": "^0.2.3"
+    "async": "^2.0.1",
+    "colors": "^1.1.2",
+    "gulp-util": "^3.0.7",
+    "lodash": "^4.15.0",
+    "q": "^2.0.3",
+    "spritesmith": "^3.1.0",
+    "through2": "^2.0.1",
+    "vinyl": "^1.2.0"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "chai": "*",
+    "gulp": "*"
   },
   "files": [
     "index.js"

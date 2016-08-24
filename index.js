@@ -127,7 +127,7 @@ var getImages = (function() {
 
         // reset lastIndex
         imageRegex.lastIndex = 0;
-
+        log(images);
         // remove nulls and duplicates
         images = _.chain(images)
             .filter()
@@ -240,7 +240,7 @@ var callSpriteSmithWith = (function() {
                     }
                 }
 
-                return Q.nfcall(spritesmith, config).then(function(result) {
+                return Q.nfcall(spritesmith.run, config).then(function(result) {
                     tmp = tmp.split(GROUP_DELIMITER);
                     tmp.shift();
 
