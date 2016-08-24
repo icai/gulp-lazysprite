@@ -1,4 +1,6 @@
 0.6.0
 support pipe chain
 autoPipe: false
+var reg4 = /{[^{]+?(?=(?:(?!width\:)[\s\S])*width\:[\s]*([^;]+);)(?:(?!height\:)[\s\S])*height\:[\s]*([^;]+);(?:(?!background(?:-image)\:)[\s\S])*background(?:-image)\:[\s]*([^;]+);[^}]*?}/;
+// https://regex101.com/r/fS6pG1/1
 
