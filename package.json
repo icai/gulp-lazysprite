@@ -11,19 +11,19 @@
     "url": "git+https://git@github.com/icai/gulp-lazysprite.git"
   },
   "dependencies": {
-    "async": "^2.0.1",
+    "async": "^0.2.10",
     "colors": "^1.1.2",
     "gulp-util": "^3.0.7",
     "lodash": "^4.15.0",
-    "q": "^2.0.3",
+    "q": "^1.4.1",
     "spritesmith": "^3.1.0",
     "through2": "^2.0.1",
     "vinyl": "^1.2.0"
   },
   "devDependencies": {
-    "mocha": "*",
     "chai": "*",
-    "gulp": "*"
+    "gulp": "*",
+    "mocha": "*"
   },
   "files": [
     "index.js"

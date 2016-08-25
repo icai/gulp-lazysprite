@@ -13,7 +13,7 @@ var path        = require('path'),
     crypto      = require('crypto'),
     PLUGIN_NAME = "gulp-lazysprite",
     debug;
-
+// "async": "^2.0.1",
 var log = function() {
     var args, sig;
 
@@ -127,11 +127,10 @@ var getImages = (function() {
 
         // reset lastIndex
         imageRegex.lastIndex = 0;
-        log(images);
         // remove nulls and duplicates
         images = _.chain(images)
             .filter()
-            .unique(function(image) {
+            .uniqBy(function(image) {
                 return image.path;
             })
             .value();
@@ -140,6 +139,7 @@ var getImages = (function() {
             // apply user filters
             .then(function(images) {
                 return Q.Promise(function(resolve, reject) {
+                    // resolve(images);
                     async.reduce(
                         options.filter,
                         images,
@@ -147,7 +147,6 @@ var getImages = (function() {
                             async.filter(
                                 images,
                                 function(image, ok) {
-                                    //如果过滤掉的图片
                                     Q(filter(image)).then(ok);
                                 },
                                 function(images) {
@@ -159,7 +158,6 @@ var getImages = (function() {
                             if (err) {
                                 return reject(err);
                             }
-
                             resolve(images);
                         }
                     );
@@ -168,6 +166,7 @@ var getImages = (function() {
             // apply user group processors
             .then(function(images) {
                 return Q.Promise(function(resolve, reject) {
+                    // resolve(images);
                     async.reduce(
                         options.groupBy,
                         images,
@@ -215,7 +214,6 @@ var callSpriteSmithWith = (function() {
 
     return function(images, options) {
         var all;
-
         all = _.chain(images)
             .groupBy(function(image) {
                 var tmp;
@@ -227,9 +225,8 @@ var callSpriteSmithWith = (function() {
             })
             .map(function(images, tmp) {
                 var config, ratio;
-
                 config = _.merge({}, options, {
-                    src: _.pluck(images, 'path')
+                    src: _.map(images, 'path')
                 });
 
                 // enlarge padding, if its retina
@@ -239,11 +236,9 @@ var callSpriteSmithWith = (function() {
                         config.padding = config.padding * ratio[0];
                     }
                 }
-
                 return Q.nfcall(spritesmith.run, config).then(function(result) {
                     tmp = tmp.split(GROUP_DELIMITER);
                     tmp.shift();
-
                     // append info about sprite group
                     result.group = tmp.map(mask(false));
 
@@ -322,7 +317,7 @@ var exportSprites = (function() {
                 options.verbose && log('Spritesheet', result.path, 'has been created');
 
                 return result;
-            });            
+            });         
 
             return results;
         }
@@ -369,7 +364,7 @@ module.exports = function(options) { 'use strict';
 
     options = _.merge({
         src:        [],
-        engine:     "pngsmith", //auto
+        engine:     "pixelsmith", //"pngsmith", //auto
         algorithm:  "top-down",
         padding:    0,
         engineOpts: {},
@@ -479,7 +474,7 @@ module.exports = function(options) { 'use strict';
                             .then(exportStylesheet(styleSheetStream, _.extend({}, options, { styleSheetName: options.styleSheetName || path.basename(file.path) })))
                             .then(function() {
                                 // pipe source file
-                                stream.push(file);
+                                stream.push(file); 
                                 done();
                             })
                             .catch(function(err) {

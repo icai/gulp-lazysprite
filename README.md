@@ -1,4 +1,4 @@
-# [gulp](http://gulpjs.com)-lazysprite
+ # [gulp](http://gulpjs.com)-lazysprite
 
 
 
