@@ -6,7 +6,7 @@ var path        = require('path'),
     fs          = require('fs'),
     gutil       = require('gulp-util'),
     util        = require("util"),
-    async       = require('async'),
+    // async       = require('async'),
     Q           = require('q'),
     through     = require('through2'),
     Readable    = require('stream').Readable,
@@ -17,23 +17,161 @@ var path        = require('path'),
 // "async": "^0.2.10",
 var log = function() {
     var args, sig;
-
     args = Array.prototype.slice.call(arguments);
     sig = '[' + colors.green(PLUGIN_NAME) + ']';
     args.unshift(sig);
-
     gutil.log.apply(gutil, args);
 };
 
 var md5 = function(text,len){
     var hash = crypto.createHash('md5').update(text).digest('hex');
-
     if(len > 0){
         hash = hash.substr(0,len)
     }
-
     return hash;
 }
+
+var async = (function(){
+    // pick from // "async": "^0.2.10"
+    var _each = function (arr, iterator) {
+        for (var i = 0; i < arr.length; i += 1) {
+            iterator(arr[i], i, arr);
+        }
+    };
+    var _map = function (arr, iterator) {
+        if (arr.map) {
+            return arr.map(iterator);
+        }
+        var results = [];
+        _each(arr, function (x, i, a) {
+            results.push(iterator(x, i, a));
+        });
+        return results;
+    };
+    var _filter = function (eachfn, arr, iterator, callback) {
+        var results = [];
+        arr = _map(arr, function (x, i) {
+            return {index: i, value: x};
+        });
+        eachfn(arr, function (x, callback) {
+            iterator(x.value, function (v) {
+                if (v) {
+                    results.push(x);
+                }
+                callback();
+            });
+        }, function (err) {
+            callback(_map(results.sort(function (a, b) {
+                return a.index - b.index;
+            }), function (x) {
+                return x.value;
+            }));
+        });
+    };
+    var _asyncMap = function (eachfn, arr, iterator, callback) {
+        arr = _map(arr, function (x, i) {
+            return {index: i, value: x};
+        });
+        if (!callback) {
+            eachfn(arr, function (x, callback) {
+                iterator(x.value, function (err) {
+                    callback(err);
+                });
+            });
+        } else {
+            var results = [];
+            eachfn(arr, function (x, callback) {
+                iterator(x.value, function (err, v) {
+                    results[x.index] = v;
+                    callback(err);
+                });
+            }, function (err) {
+                callback(err, results);
+            });
+        }
+    };
+    var only_once = function(fn) {
+        var called = false;
+        return function() {
+            if (called) throw new Error("Callback was already called.");
+            called = true;
+            fn.apply(root, arguments);
+        }
+    }
+
+    var _async_each = function (arr, iterator, callback) {
+        callback = callback || function () {};
+        if (!arr.length) {
+            return callback();
+        }
+        var completed = 0;
+        _each(arr, function (x) {
+            iterator(x, only_once(done) );
+        });
+        function done(err) {
+          if (err) {
+              callback(err);
+              callback = function () {};
+          }
+          else {
+              completed += 1;
+              if (completed >= arr.length) {
+                  callback();
+              }
+          }
+        }
+    };
+
+    var doParallel = function (fn) {
+        return function () {
+            var args = Array.prototype.slice.call(arguments);
+            return fn.apply(null, [_async_each].concat(args));
+        };
+    };
+
+    var eachSeries = function (arr, iterator, callback) {
+        callback = callback || function () {};
+        if (!arr.length) {
+            return callback();
+        }
+        var completed = 0;
+        var iterate = function () {
+            iterator(arr[completed], function (err) {
+                if (err) {
+                    callback(err);
+                    callback = function () {};
+                }
+                else {
+                    completed += 1;
+                    if (completed >= arr.length) {
+                        callback();
+                    }
+                    else {
+                        iterate();
+                    }
+                }
+            });
+        };
+        iterate();
+    };
+
+    var reduce = function (arr, memo, iterator, callback) {
+        eachSeries(arr, function (x, callback) {
+            iterator(memo, x, function (err, v) {
+                memo = v;
+                callback(err);
+            });
+        }, function (err) {
+            callback(err, memo);
+        });
+    };
+    return  {
+        reduce: reduce,
+        filter: doParallel(_filter),
+        map: doParallel(_asyncMap),
+        eachSeries: eachSeries
+    };
+})();
 
 var getImages = (function() {
     var httpRegex, imageRegex, filePathRegex, pngRegex, retinaRegex;
