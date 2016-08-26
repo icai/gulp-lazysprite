@@ -2,6 +2,8 @@
     background-image: url(/a.png);
 }
 .b {
+	width:25px;
+	height:25px;
     background-image: url("sprite.png?v=b98fec40");
     background-position: -0px -0px;
     background-size: 25px 25px!important;

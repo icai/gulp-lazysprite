@@ -1,5 +1,7 @@
 @media (min-resolution: 2dppx) {
 .a {
+	width:25px;
+	height:25px;
     background-image: url("sprite.@2x.png?v=2d055014");
     background-position: -0px -0px;
     background-size: 25px 50px!important;
@@ -7,6 +9,8 @@
 }
 
 .b {
+	width:25px;
+	height:25px;
     background-image: url("sprite.@2x.png?v=2d055014");
     background-position: -0px -25px;
     background-size: 25px 50px!important;

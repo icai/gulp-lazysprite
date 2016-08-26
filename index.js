@@ -162,15 +162,16 @@ var async = (function(){
 
 var getImages = (function() {
     var httpRegex, imageRegex, filePathRegex, pngRegex, retinaRegex;
-
-    imageRegex    = new RegExp('background(?:-image)?:[\\s]?(?:image-)?url\\(["\']?([\\w\\d\\s!:./\\-\\_@]*\\.[\\w?#]+)["\']?\\)[^;]*\\;(?:\\s*\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\/)?', 'ig');
+    imageRegex    = new RegExp('{[^{]*?background(?:-image):\\s*((?:image-)?url\\(([\'"]?)([^;]*)\\2\\));(?:\\s*\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\/)?[^}]*?}', 'ig');
+    // imageRegex    = new RegExp('background(?:-image)?:[\\s]?(?:image-)?url\\(["\']?([\\w\\d\\s!:./\\-\\_@]*\\.[\\w?#]+)["\']?\\)[^;]*\\;(?:\\s*\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\/)?', 'ig');
     retinaRegex   = new RegExp('@(\\d)x\\.[a-z]{3,4}$', 'ig');
     httpRegex     = new RegExp('http[s]?', 'ig');
     pngRegex      = new RegExp('\\.png(?:\\?\\w*)?$', 'i');
     filePathRegex = new RegExp('["\']?([\\w\\d\\s!:./\\-\\_@]*\\.[\\w?#]+)["\']?', 'ig');
+    autoSizeRegex = new RegExp('{[^{]*?(?=(?:(?!width:)[\\s\\S])*width:\\s*([^;]+);)(?:(?!height:)[\\s\\S])*height:\\s*([^;]+);[^}]*?}','ig');
 
     return function(file, options) {
-        var reference, images,
+        var reference, images, block,
             retina, filePath,
             url, image, meta, basename,
             makeRegexp, content;
@@ -190,12 +191,16 @@ var getImages = (function() {
         })();
 
         while ((reference = imageRegex.exec(content)) != null) {
-            var isImageUrl = /background(?:-image)?:[\s]?image-url/.exec(reference[0]) != null;
-            url   = reference[1];
-            meta  = reference[2];
 
+            block = reference[0];
+            url   = reference[3];
+            meta  = reference[4];
+
+            var isImageUrl = /background(?:-image)?:[\s]?image-url/.exec(block) != null;
+
+            
             image = {
-                replacement: new RegExp('background(?:-image)?:\\s+(?:image-)?url\\(\\s?(["\']?)\\s?' + makeRegexp(url) + '\\s?\\1\\s?\\)[^;]*\\;', 'gi'),
+                replacement: new RegExp('background(?:-image)?:\\s*(?:image-)?url\\(\\s?(["\']?)\\s?'+ makeRegexp(url) + '\\s?\\1\\s?\\)[^;]*\\;', 'gi'),
                 url:         url,
                 group:       [],
                 isRetina:    false,
@@ -238,13 +243,15 @@ var getImages = (function() {
                 } else {
                     filePath = path.resolve(file.path.substring(0, file.path.lastIndexOf(path.sep)), filePath);
                 }
-                
+            }
+            if(!autoSizeRegex.test(block)){
+                image.autoSize = true;
             }
             image.path = filePath;
             image.isImageUrl = isImageUrl;
 
             // reset lastIndex
-            [httpRegex, pngRegex, retinaRegex, filePathRegex].forEach(function(regex) {
+            [httpRegex, pngRegex, retinaRegex, filePathRegex, autoSizeRegex].forEach(function(regex) {
                 regex.lastIndex = 0;
             });
 
@@ -383,6 +390,8 @@ var updateReferencesIn = (function() {
     var template;
 
     template = _.template(
+        '<% if(autoSize){%>width: <%= isRetina ? (coordinates.width / retinaRatio) : coordinates.width %>px;\n    '+
+        'height: <%= isRetina ? (coordinates.height / retinaRatio) : coordinates.height %>px;\n    <%}%>'+
         'background-image: <%= isImageUrl ? "image-": ""%>url("<%= spriteSheetPath %>?v=<%= fileHash %>");\n    ' +
         'background-position: -<%= isRetina ? (coordinates.x / retinaRatio) : coordinates.x %>px -<%= isRetina ? (coordinates.y / retinaRatio) : coordinates.y %>px;\n    ' +
         'background-size: <%= isRetina ? (properties.width / retinaRatio) : properties.width %>px <%= isRetina ? (properties.height / retinaRatio) : properties.height %>px!important;'
