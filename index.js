@@ -14,6 +14,7 @@ var path        = require('path'),
     PLUGIN_NAME = "gulp-lazysprite",
     debug;
 // "async": "^2.0.1",
+// "async": "^0.2.10",
 var log = function() {
     var args, sig;
 
@@ -134,12 +135,10 @@ var getImages = (function() {
                 return image.path;
             })
             .value();
-
         return Q(images)
             // apply user filters
             .then(function(images) {
                 return Q.Promise(function(resolve, reject) {
-                    // resolve(images);
                     async.reduce(
                         options.filter,
                         images,
@@ -166,7 +165,6 @@ var getImages = (function() {
             // apply user group processors
             .then(function(images) {
                 return Q.Promise(function(resolve, reject) {
-                    // resolve(images);
                     async.reduce(
                         options.groupBy,
                         images,
@@ -231,7 +229,7 @@ var callSpriteSmithWith = (function() {
 
                 // enlarge padding, if its retina
                 if (_.every(images, function(image) {return image.isRetina})) {
-                    ratio = _.chain(images).flatten('retinaRatio').unique().value();
+                    ratio = _.chain(images).map('retinaRatio').uniq().value();
                     if (ratio.length == 1) {
                         config.padding = config.padding * ratio[0];
                     }
@@ -506,7 +504,7 @@ module.exports = function(options) { 'use strict';
                             .reduce(function(images, portion) {
                                 return images.concat(portion);
                             }, [])
-                            .unique(function(image) {
+                            .uniqBy(function(image) {
                                 return image.path;
                             })
                             .value();
