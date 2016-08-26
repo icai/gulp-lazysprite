@@ -1,6 +1,4 @@
- # [gulp](http://gulpjs.com)-lazysprite
-
-
+# gulp-lazysprite
 
  Better suit for `gulp-sass` and `node-sass-asset-functions`.
 
@@ -32,7 +30,7 @@ var sprite = require('gulp-lazysprite');
 gulp.task('sprites', function() {
     var spriteOutput;
 
-	spriteOutput = gulp.src("./src/css/*.@(css|less|scss)")
+	spriteOutput = gulp.src("./src/css/*.css")
 		.pipe(sprite({
             baseUrl:         "./src/image",
             spriteSheetName: "sprite.png",
@@ -44,13 +42,13 @@ gulp.task('sprites', function() {
 });
 ```
 
-Demo:
+Sass or Less:
 
-```js
+```javascript
 gulp.task('style',function(){
     var spriteOutput;
-    spriteOutput = gulp.src(srcPath+'/css/**/*.@(less|scss|css)')
-    .pipe(less())
+    spriteOutput = gulp.src(srcPath+'/css/**/*.@(scss|css)')
+    .pipe(sass()) // .pipe(less())
     .pipe(spriter({
         baseUrl: "./",
         spriteSheetName:"[name].sprite.png",// repalce `[name]` to filename
@@ -80,7 +78,7 @@ options and plugin specific options.
 
 Property     | Necessary | Type     | Plugin default value
 -------------|-----------|----------|---------------------
-[engine]     | no        | `String` | `"pngsmith"`
+[engine]     | no        | `String` | `"pixelsmith"`
 [algorithm]  | no        | `String` | `"top-down"`
 [padding]    | no        | `Number` | `0`
 [engineOpts] | no        | `Object` | `{}`
@@ -267,5 +265,7 @@ gulp.task('sprites', function() {
 ```
 
 ## License
+
+Licensed under the MIT license.
 
 

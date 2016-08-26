@@ -36,7 +36,7 @@ describe('gulp-lazysprite', function(){
 
         config = {
             src:        [],
-            engine:     "auto",
+            // engine:     "auto",
             algorithm:  "top-down",
             padding:    0,
             engineOpts: {},

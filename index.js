@@ -29,25 +29,12 @@ var md5 = function(text,len){
         hash = hash.substr(0,len)
     }
     return hash;
-}
+};
 
 var async = (function(){
     // pick from // "async": "^0.2.10"
-    var _each = function (arr, iterator) {
-        for (var i = 0; i < arr.length; i += 1) {
-            iterator(arr[i], i, arr);
-        }
-    };
-    var _map = function (arr, iterator) {
-        if (arr.map) {
-            return arr.map(iterator);
-        }
-        var results = [];
-        _each(arr, function (x, i, a) {
-            results.push(iterator(x, i, a));
-        });
-        return results;
-    };
+    var _each = _.forEach,
+        _map = _.map;
     var _filter = function (eachfn, arr, iterator, callback) {
         var results = [];
         arr = _map(arr, function (x, i) {
@@ -95,11 +82,10 @@ var async = (function(){
         return function() {
             if (called) throw new Error("Callback was already called.");
             called = true;
-            fn.apply(root, arguments);
+            fn.apply(global || root, arguments);
         }
-    }
-
-    var _async_each = function (arr, iterator, callback) {
+    };
+    var each = function (arr, iterator, callback) {
         callback = callback || function () {};
         if (!arr.length) {
             return callback();
@@ -125,7 +111,7 @@ var async = (function(){
     var doParallel = function (fn) {
         return function () {
             var args = Array.prototype.slice.call(arguments);
-            return fn.apply(null, [_async_each].concat(args));
+            return fn.apply(null, [each].concat(args));
         };
     };
 
@@ -169,6 +155,7 @@ var async = (function(){
         reduce: reduce,
         filter: doParallel(_filter),
         map: doParallel(_asyncMap),
+        each: each,
         eachSeries: eachSeries
     };
 })();
