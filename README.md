@@ -1,5 +1,7 @@
 # gulp-lazysprite
 
+[![NPM](https://nodei.co/npm/gulp-lazysprite.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/gulp-lazysprite/)
+
  Better suit for `gulp-sass` and `node-sass-asset-functions`.
 
 
@@ -66,6 +68,35 @@ gulp.task('style',function(){
 });
 
 ```
+
+
+or handle sprites first.
+
+```javascript
+gulp.task('style',function(){
+    var spriteOutput;
+    spriteOutput = gulp.src(srcPath+'/css/**/*.@(scss|css)')
+    .pipe(spriter({
+        baseUrl: "./",
+        spriteSheetName:"[name].sprite.png",// repalce `[name]` to filename
+        spriteSheetPath: "../images/sprite",
+        filter: [
+            function(image) {
+                return !(image.url.indexOf("?__sprite") === -1);  
+            }
+        ]
+        verbose:true
+    }))
+
+    spriteOutput.css.pipe(gulp.dest(distPath+'/scss'));
+    spriteOutput.img.pipe(gulp.dest(distPath+'/images/sprite'));
+});
+// see the parameter `options.imageUrl`
+
+// after that handle sass/less
+
+```
+
 
 Of course you may need to have more flexible configuration for spriting. And this plugin can give you something more!
 
