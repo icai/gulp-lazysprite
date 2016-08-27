@@ -1,7 +1,7 @@
 {
   "name": "gulp-lazysprite",
-  "version": "0.5.1",
-  "description": "Extend gulp-sprite-generator",
+  "version": "0.6.1",
+  "description": "Extended gulp-sprite-generator, dependencies up to date. plugin that generate sprites from your stylesheets",
   "main": "index.js",
   "scripts": {
     "test": "mocha ./test"
@@ -31,7 +31,10 @@
     "css",
     "scss",
     "less",
-    "sprite"
+    "sprite",
+    "auto",
+    "generate",
+    "generator"
   ],
   "author": "icai",
   "license": "MIT",

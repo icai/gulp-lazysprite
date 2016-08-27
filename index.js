@@ -6,15 +6,12 @@ var path        = require('path'),
     fs          = require('fs'),
     gutil       = require('gulp-util'),
     util        = require("util"),
-    // async       = require('async'),
     Q           = require('q'),
     through     = require('through2'),
     Readable    = require('stream').Readable,
     crypto      = require('crypto'),
     PLUGIN_NAME = "gulp-lazysprite",
     debug;
-// "async": "^2.0.1",
-// "async": "^0.2.10",
 var log = function() {
     var args, sig;
     args = Array.prototype.slice.call(arguments);
