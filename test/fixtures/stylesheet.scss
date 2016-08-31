@@ -1,0 +1,9 @@
+.a {
+    background: url(/a.png) no-repeat;
+}
+.b {
+    background-image: image-url("b.png");
+}
+.c {
+	background-image: url("/a.png");
+}

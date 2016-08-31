@@ -1,6 +1,5 @@
 var path        = require('path'),
     spritesmith = require('spritesmith'),
-    File        = require('vinyl'),
     _           = require('lodash'),
     colors      = require('colors'),
     fs          = require('fs'),
@@ -10,6 +9,7 @@ var path        = require('path'),
     through     = require('through2'),
     Readable    = require('stream').Readable,
     crypto      = require('crypto'),
+    File        = gutil.File,
     PLUGIN_NAME = "gulp-lazysprite",
     debug;
 var log = function() {
@@ -159,7 +159,7 @@ var async = (function(){
 
 var getImages = (function() {
     var httpRegex, imageRegex, filePathRegex, pngRegex, retinaRegex;
-    imageRegex    = new RegExp('{[^{]*?background(?:-image):\\s*((?:image-)?url\\(([\'"]?)([^;]*)\\2\\));(?:\\s*\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\/)?[^}]*?}', 'ig');
+    imageRegex    = new RegExp('{[^{]*?background(?:-image)?:\\s*((?:image-)?url\\\((["\']?)([^;]*)\\2\\\));(?:\\s*\\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\\/)?[^}]*?}', 'ig');
     // imageRegex    = new RegExp('background(?:-image)?:[\\s]?(?:image-)?url\\(["\']?([\\w\\d\\s!:./\\-\\_@]*\\.[\\w?#]+)["\']?\\)[^;]*\\;(?:\\s*\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\/)?', 'ig');
     retinaRegex   = new RegExp('@(\\d)x\\.[a-z]{3,4}$', 'ig');
     httpRegex     = new RegExp('http[s]?', 'ig');
@@ -438,9 +438,7 @@ var exportSprites = (function() {
                     path: result.path,
                     contents: new Buffer(result.image, 'binary')
                 });
-
                 result.spriteHash = md5(result.image,8);
-
                 stream.push(sprite);
 
                 options.verbose && log('Spritesheet', result.path, 'has been created');
@@ -660,6 +658,7 @@ module.exports = function(options) { 'use strict';
             }
 
             pending.then(function() {
+            	
                 // end streams
                 styleSheetStream.push(null);
                 spriteSheetStream.push(null);

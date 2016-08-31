@@ -1,8 +1,10 @@
 var fs      = require('fs'),
     assert  = require('chai').assert,
-    File    = require('vinyl'),
+    File    = require('gulp-util').File,
+    // gutil   = require('gulp-util').file,
     path    = require('path'),
     through = require('through2'),
+    gulp    = require('gulp'),
 //    gulpif  = require("gulp-if"),
 //    rev     = require("gulp-rev"),
     sprite  = require('./../index');
@@ -484,6 +486,70 @@ describe('gulp-lazysprite', function(){
 
         stream.end();
     });
+
+
+    it("Should create scss", function(done){
+        var config, stream, errors, stylesheet;
+
+        stylesheet = {
+            fixture: path.resolve(fixtures, 'stylesheet.scss'),
+            expectation: path.resolve(expectations, 'stylesheet.scss')
+        };
+
+        errors = [];
+
+        config = {
+            src:        [],
+            // engine:     "auto",
+            algorithm:  "top-down",
+            padding:    0,
+            engineOpts: {},
+            exportOpts: {},
+
+            baseUrl:         fixtures,
+            imageUrl: { imagesPath: fixtures },
+            spriteSheetName:  "sprite.png",
+            // styleSheetName: "stylesheet.sprite.css",
+            spriteSheetPath: null,
+            filter: [],
+            groupBy: [],
+            verbose: true
+        };
+
+        stream = sprite(config);
+
+        stream.img.on('data', function (file) {
+            try {
+                assert.equal(file.path, config.spriteSheetName);
+            } catch (err) {
+                errors.push(err);
+            }
+        });
+
+        stream.css.on('data', function (file) {
+            try {
+                assert.equal(clearStr(file.contents.toString()), clearStr(fs.readFileSync(stylesheet.expectation).toString()));
+                assert.equal(file.path, "stylesheet.scss");
+            } catch (err) {
+                errors.push(err);
+            }
+        });
+        stream.img.pipe(gulp.dest('./test/fixtures'));
+
+        stream.on('finish', function(){
+            setTimeout(function(){
+                done(errors[0]);
+            }, 100);
+        });
+
+        stream.write(new File({
+            base:     test,
+            path:     stylesheet.fixture,
+            contents: new Buffer(fs.readFileSync(stylesheet.fixture))
+        }));
+
+        stream.end();
+    })
 
 });
 
