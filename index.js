@@ -159,7 +159,7 @@ var async = (function(){
 
 var getImages = (function() {
     var httpRegex, imageRegex, filePathRegex, pngRegex, retinaRegex;
-    imageRegex    = new RegExp('{[^{]*?background(?:-image)?:\\s*((?:image-)?url\\\((["\']?)([^;]*)\\2\\\));(?:\\s*\\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\\/)?[^}]*?}', 'ig');
+    imageRegex    = new RegExp('{[^{]*?background(?:-image)?:\\s*((?:image-)?url\\((["\']?)([\\w\\d\\s!:./\\-\\_@]*\\.[\\w?#]+)\\2\\))[^;]*\\;(?:\\s*\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\/)?[^}]*?}', 'ig');
     // imageRegex    = new RegExp('background(?:-image)?:[\\s]?(?:image-)?url\\(["\']?([\\w\\d\\s!:./\\-\\_@]*\\.[\\w?#]+)["\']?\\)[^;]*\\;(?:\\s*\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\/)?', 'ig');
     retinaRegex   = new RegExp('@(\\d)x\\.[a-z]{3,4}$', 'ig');
     httpRegex     = new RegExp('http[s]?', 'ig');
@@ -179,6 +179,8 @@ var getImages = (function() {
 
         basename = path.basename(file.path);
 
+        // log(file.path);
+
         makeRegexp = (function() {
             var matchOperatorsRe = /[|\\/{}()[\]^$+*?.]/g;
 
@@ -194,7 +196,7 @@ var getImages = (function() {
             meta  = reference[4];
 
             var isImageUrl = /background(?:-image)?:[\s]?image-url/.exec(block) != null;
-
+            
             
             image = {
                 replacement: new RegExp('background(?:-image)?:\\s*(?:image-)?url\\(\\s?(["\']?)\\s?'+ makeRegexp(url) + '\\s?\\1\\s?\\)[^;]*\\;', 'gi'),
@@ -202,6 +204,7 @@ var getImages = (function() {
                 group:       [],
                 isRetina:    false,
                 retinaRatio: 1,
+                autoSize: false,
                 meta:        {}
             };
 
@@ -241,7 +244,9 @@ var getImages = (function() {
                     filePath = path.resolve(file.path.substring(0, file.path.lastIndexOf(path.sep)), filePath);
                 }
             }
-            if(!autoSizeRegex.test(block)){
+            if(!autoSizeRegex.test(block.replace(/\/\*[^\*]+\*\//g,"").replace(/\/\/[^\n]*/g,""))){
+                // \/\*[^\*]+\*\/ 
+                // \/\/[^\n]+
                 image.autoSize = true;
             }
             image.path = filePath;
@@ -590,7 +595,7 @@ module.exports = function(options) { 'use strict';
                     return;
                 }
 
-                var filename = file.path.split(path.sep).pop().split('.')[0]
+                var filename = file.path.split(path.sep).pop().split('.')[0];
 
                 getImages(file, options)
                     .then(function(images) {
@@ -658,7 +663,7 @@ module.exports = function(options) { 'use strict';
             }
 
             pending.then(function() {
-            	
+                
                 // end streams
                 styleSheetStream.push(null);
                 spriteSheetStream.push(null);
