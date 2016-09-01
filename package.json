@@ -1,6 +1,6 @@
 {
   "name": "gulp-lazysprite",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Extended gulp-sprite-generator, dependencies up to date. plugin that generate sprites from your stylesheets",
   "main": "index.js",
   "scripts": {
