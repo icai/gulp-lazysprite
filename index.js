@@ -7,7 +7,6 @@ var path        = require('path'),
     util        = require("util"),
     Q           = require('q'),
     through     = require('through2'),
-    Readable    = require('stream').Readable,
     crypto      = require('crypto'),
     File        = gutil.File,
     PLUGIN_NAME = "gulp-lazysprite",
@@ -567,10 +566,10 @@ module.exports = function(options) { 'use strict';
     }
 
     // create output streams
-    function noop(){}
-    styleSheetStream = new Readable({objectMode: true});
-    spriteSheetStream = new Readable({objectMode: true});
-    spriteSheetStream._read = styleSheetStream._read = noop;
+
+    styleSheetStream = through.obj();
+    spriteSheetStream = through.obj();
+
 
     var accumulatedFiles = [];
 
@@ -606,7 +605,7 @@ module.exports = function(options) { 'use strict';
                             .then(exportStylesheet(styleSheetStream, _.extend({}, options, { styleSheetName: options.styleSheetName || path.basename(file.path) })))
                             .then(function() {
                                 // pipe source file
-                                stream.push(file); 
+                                // stream.push(file); 
                                 done();
                             })
                             .catch(function(err) {

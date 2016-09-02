@@ -431,14 +431,14 @@ describe('gulp-lazysprite', function(){
         }));
 
 
-        stream.pipe(through.obj(function(file, enc, done) {
-            piped.main++;
-            try {
-                assert.instanceOf(file, File, "Piped in a main stream obj is not a File");
-            } catch (err) {
-                errors.push(err);
-            }
-        }));
+        // stream.pipe(through.obj(function(file, enc, done) {
+        //     piped.main++;
+        //     try {
+        //         assert.instanceOf(file, File, "Piped in a main stream obj is not a File");
+        //     } catch (err) {
+        //         errors.push(err);
+        //     }
+        // }));
 
         stream.css.pipe(through.obj(function(file, enc, done) {
             piped.css++;
@@ -476,7 +476,7 @@ describe('gulp-lazysprite', function(){
             try {
                 assert.equal(1, piped.img,  "No piped data in img stream");
                 assert.equal(1, piped.css,  "No piped data in css stream");
-                assert.equal(1, piped.main, "No piped data in main stream");
+                // assert.equal(1, piped.main, "No piped data in main stream");
             } catch (err) {
                 errors.push(err);
             }
