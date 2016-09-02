@@ -589,7 +589,7 @@ module.exports = function(options) { 'use strict';
                 // postpone evaluation, if we accumulating
                 if (options.accumulate) {
                     accumulatedFiles.push(file);
-                    stream.push(file);
+                    // stream.push(file);
                     done();
                     return;
                 }
