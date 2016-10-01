@@ -1,7 +1,8 @@
 .a {
+	font-weight: normal;
 	width:25px;
 	height:25px;
-    background-image: url("sprite.png");
+    background-image: url("sprite.png?v=8dcb75c4");
     background-position: -0px -0px;
     background-size: 25px 50px!important;
 }

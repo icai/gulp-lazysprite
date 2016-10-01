@@ -21,6 +21,7 @@
   "devDependencies": {
     "chai": "*",
     "gulp": "*",
+    "merge-stream": "*",
     "mocha": "*"
   },
   "files": [

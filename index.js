@@ -1,4 +1,6 @@
-var path        = require('path'),
+
+var 
+    path        = require('path'),
     spritesmith = require('spritesmith'),
     _           = require('lodash'),
     colors      = require('colors'),
@@ -22,9 +24,13 @@ var log = function() {
 var md5 = function(text,len){
     var hash = crypto.createHash('md5').update(text).digest('hex');
     if(len > 0){
-        hash = hash.substr(0,len)
+        hash = hash.substr(0,len);
     }
     return hash;
+};
+
+var removecomment = function(str){
+    return str.replace(/\/\*[^\*]+\*\//g,"").replace(/\/\/[^\n]*/g,"");
 };
 
 var async = (function(){
@@ -76,7 +82,9 @@ var async = (function(){
     var only_once = function(fn) {
         var called = false;
         return function() {
-            if (called) throw new Error("Callback was already called.");
+            if (called) {
+                throw new Error("Callback was already called.");
+            }
             called = true;
             fn.apply(global || root, arguments);
         }
@@ -157,8 +165,8 @@ var async = (function(){
 })();
 
 var getImages = (function() {
-    var httpRegex, imageRegex, filePathRegex, pngRegex, retinaRegex;
-    imageRegex    = new RegExp('{[^{]*?background(?:-image)?:\\s*((?:image-)?url\\((["\']?)([\\w\\d\\s!:./\\-\\_@]*\\.[\\w?#]+)\\2\\))[^;]*\\;(?:\\s*\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\/)?[^}]*?}', 'ig');
+    var httpRegex, imageRegex, filePathRegex, pngRegex, retinaRegex, autoSizeRegex;
+    imageRegex    = new RegExp('[^{}]*{[^{]*?background(?:-image)?:\\s*((?:image-)?url\\((["\']?)([\\w\\d\\s!:./\\-\\_@]*\\.[\\w?#]+)\\2\\))[^;]*\\;(?:\\s*\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\/)?[^}]*?}', 'ig');
     // imageRegex    = new RegExp('background(?:-image)?:[\\s]?(?:image-)?url\\(["\']?([\\w\\d\\s!:./\\-\\_@]*\\.[\\w?#]+)["\']?\\)[^;]*\\;(?:\\s*\\/\\*\\s*@meta\\s*(\\{.*\\})\\s*\\*\\/)?', 'ig');
     retinaRegex   = new RegExp('@(\\d)x\\.[a-z]{3,4}$', 'ig');
     httpRegex     = new RegExp('http[s]?', 'ig');
@@ -178,14 +186,13 @@ var getImages = (function() {
 
         basename = path.basename(file.path);
 
-        // log(file.path);
 
         makeRegexp = (function() {
             var matchOperatorsRe = /[|\\/{}()[\]^$+*?.]/g;
 
             return function(str) {
                 return str.replace(matchOperatorsRe,  '\\$&');
-            }
+            };
         })();
 
         while ((reference = imageRegex.exec(content)) != null) {
@@ -193,6 +200,7 @@ var getImages = (function() {
             block = reference[0];
             url   = reference[3];
             meta  = reference[4];
+
 
             var isImageUrl = /background(?:-image)?:[\s]?image-url/.exec(block) != null;
             
@@ -243,11 +251,13 @@ var getImages = (function() {
                     filePath = path.resolve(file.path.substring(0, file.path.lastIndexOf(path.sep)), filePath);
                 }
             }
-            if(!autoSizeRegex.test(block.replace(/\/\*[^\*]+\*\//g,"").replace(/\/\/[^\n]*/g,""))){
+            var nocommentblock = removecomment(block);
+            if(!autoSizeRegex.test(nocommentblock)){
                 // \/\*[^\*]+\*\/ 
                 // \/\/[^\n]+
                 image.autoSize = true;
             }
+
             image.path = filePath;
             image.isImageUrl = isImageUrl;
 
@@ -324,7 +334,7 @@ var getImages = (function() {
                     );
                 });
             });
-    }
+    };
 })();
 
 var callSpriteSmithWith = (function() {
@@ -340,7 +350,7 @@ var callSpriteSmithWith = (function() {
 
         return function(value) {
             return value.replace(from, to);
-        }
+        };
     }
 
     return function(images, options) {
@@ -361,7 +371,7 @@ var callSpriteSmithWith = (function() {
                 });
 
                 // enlarge padding, if its retina
-                if (_.every(images, function(image) {return image.isRetina})) {
+                if (_.every(images, function(image) {return image.isRetina;})) {
                     ratio = _.chain(images).map('retinaRatio').uniq().value();
                     if (ratio.length == 1) {
                         config.padding = config.padding * ratio[0];
@@ -384,7 +394,7 @@ var callSpriteSmithWith = (function() {
             debug.sprites+= results.length;
             return results;
         });
-    }
+    };
 })();
 
 var updateReferencesIn = (function() {
@@ -410,8 +420,8 @@ var updateReferencesIn = (function() {
             });
 
             return Q(content);
-        }
-    }
+        };
+    };
 })();
 
 var exportSprites = (function() {
@@ -420,7 +430,7 @@ var exportSprites = (function() {
 
         group || (group = []);
 
-        if (group.length == 0) {
+        if (group.length === 0) {
             return spriteSheetName;
         }
 
@@ -451,8 +461,8 @@ var exportSprites = (function() {
             });         
 
             return results;
-        }
-    }
+        };
+    };
 })();
 
 var exportStylesheet = function(stream, options) {
@@ -467,7 +477,7 @@ var exportStylesheet = function(stream, options) {
         stream.push(stylesheet);
 
         options.verbose && log('Stylesheet', options.styleSheetName, 'has been created');
-    }
+    };
 };
 
 var mapSpritesProperties = function(images, options) {
@@ -482,10 +492,11 @@ var mapSpritesProperties = function(images, options) {
                 });
             });
         });
-    }
+    };
 };
 
-module.exports = function(options) { 'use strict';
+module.exports = function(options) { 
+    'use strict';
     var stream, styleSheetStream, spriteSheetStream;
 
     debug = {
@@ -529,12 +540,12 @@ module.exports = function(options) { 'use strict';
 
     // prepare filters
     if (_.isFunction(options.filter)) {
-        options.filter = [options.filter]
+        options.filter = [options.filter];
     }
 
     // prepare groupers
     if (_.isFunction(options.groupBy)) {
-        options.groupBy = [options.groupBy]
+        options.groupBy = [options.groupBy];
     }
 
     // add meta skip filter
@@ -569,7 +580,6 @@ module.exports = function(options) { 'use strict';
 
     styleSheetStream = through.obj();
     spriteSheetStream = through.obj();
-
 
     var accumulatedFiles = [];
 

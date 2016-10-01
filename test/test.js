@@ -1,17 +1,25 @@
 var fs      = require('fs'),
     assert  = require('chai').assert,
     File    = require('gulp-util').File,
-    // gutil   = require('gulp-util').file,
     path    = require('path'),
     through = require('through2'),
     gulp    = require('gulp'),
+    mergestream   = require('merge-stream'),
 //    gulpif  = require("gulp-if"),
 //    rev     = require("gulp-rev"),
     sprite  = require('./../index');
 
+function removecomment(str){
+    return str.replace(/\/\*[^\*]+\*\//g,"").replace(/\/\/[^\n]*/g,"");
+}
 
 function clearStr(str) {
-    return str.replace(/[\s,\r,\n,\t]/gi, "");
+    return removecomment(str.replace(/[\s,\r,\n,\t]/gi, ""));
+}
+
+
+function merge(stream, stream2){
+    return mergestream(stream, stream2);
 }
 
 describe('gulp-lazysprite', function(){
@@ -23,6 +31,7 @@ describe('gulp-lazysprite', function(){
         fixtures   = path.resolve(test, 'fixtures');
         expectations   = path.resolve(test, 'expectations');
     });
+
 
     it("should accumulate images and create common sprite from multiple stylesheets", function(done) {
         var config, stream, errors, stylesheet, index;
@@ -67,6 +76,7 @@ describe('gulp-lazysprite', function(){
 
             id = index.indexOf(file.path);
 
+
             try {
                 assert.equal(clearStr(file.contents.toString()), clearStr(fs.readFileSync(stylesheet.expectations[id]).toString()));
             } catch (err) {
@@ -86,7 +96,7 @@ describe('gulp-lazysprite', function(){
             contents: new Buffer(fs.readFileSync(stylesheet.fixtures[1]))
         }));
 
-        stream.on('finish', function() {
+        merge(stream.img, stream.css).on('finish', function() {
             done(errors[0]);
         });
 
@@ -144,7 +154,7 @@ describe('gulp-lazysprite', function(){
             contents: new Buffer(fs.readFileSync(stylesheet.fixture))
         }));
 
-        stream.on('finish', function() {
+        merge(stream.img, stream.css).on('finish', function() {
             done(errors[0]);
         });
 
@@ -203,7 +213,7 @@ describe('gulp-lazysprite', function(){
             contents: new Buffer(fs.readFileSync(stylesheet.fixture))
         }));
 
-        stream.on('finish', function() {
+        merge(stream.img, stream.css).on('finish', function() {
             done(errors[0]);
         });
 
@@ -266,7 +276,7 @@ describe('gulp-lazysprite', function(){
             contents: new Buffer(fs.readFileSync(stylesheet.fixture))
         }));
 
-        stream.on('finish', function() {
+        merge(stream.img, stream.css).on('finish', function() {
             done(errors[0]);
         });
 
@@ -329,7 +339,7 @@ describe('gulp-lazysprite', function(){
             contents: new Buffer(fs.readFileSync(stylesheet.fixture))
         }));
 
-        stream.on('finish', function() {
+        merge(stream.img, stream.css).on('finish', function() {
             done(errors[0]);
         });
 
@@ -372,7 +382,7 @@ describe('gulp-lazysprite', function(){
             contents: new Buffer('.a { background-image: url("sprite.retina-2x.png"); /* @meta ' + JSON.stringify(meta) + ' */ }')
         }));
 
-        stream.on('finish', function() {
+        merge(stream.img, stream.css).on('finish', function() {
             done(errors[0]);
         });
 
@@ -472,7 +482,7 @@ describe('gulp-lazysprite', function(){
        //         done();
        //     }));
 
-        stream.on('finish', function() {
+        merge(stream.img, stream.css).on('finish', function() {
             try {
                 assert.equal(1, piped.img,  "No piped data in img stream");
                 assert.equal(1, piped.css,  "No piped data in css stream");
@@ -536,7 +546,7 @@ describe('gulp-lazysprite', function(){
         });
         stream.img.pipe(gulp.dest('./test/fixtures'));
 
-        stream.on('finish', function(){
+        merge(stream.img, stream.css).on('finish', function(){
             setTimeout(function(){
                 done(errors[0]);
             }, 100);
@@ -549,7 +559,7 @@ describe('gulp-lazysprite', function(){
         }));
 
         stream.end();
-    })
+    });
 
 });
 
